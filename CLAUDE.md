@@ -173,6 +173,30 @@ microcms-mcp-server/
   - `dev`: 開発モード実行
   - `lint`: コード品質チェック
 
+### mcporterによる動作確認
+
+[mcporter](https://github.com/steipete/mcporter)を使って、MCPサーバーの動作確認をCLIから行える。設定は `config/mcporter.json` に定義済み。
+
+**前提条件:**
+- 環境変数 `MICROCMS_SERVICE_ID` と `MICROCMS_API_KEY` が設定されていること
+- **ソースコード変更後は必ず `npm run build` を実行すること**（mcporterは `dist/index.js` を実行するため、ビルドしないと変更が反映されない）
+
+**手順:**
+
+```bash
+# 1. ビルド（初回 or ソース変更後に必須）
+npm run build
+
+# 2. ツール一覧の確認
+npx mcporter list microcms
+
+# 3. ツール呼び出し例
+npx mcporter call microcms.microcms_get_list endpoint:blogs limit:2
+npx mcporter call microcms.microcms_get_content endpoint:blogs contentId:article-1
+npx mcporter call microcms.microcms_get_media limit:5
+npx mcporter call microcms.microcms_get_api_list
+```
+
 ### 参考API仕様
 
 **コンテンツAPI:**

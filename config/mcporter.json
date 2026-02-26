@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "microcms": {
+      "command": "node",
+      "args": ["../dist/index.js"],
+      "env": {
+        "MICROCMS_SERVICE_ID": "${MICROCMS_SERVICE_ID}",
+        "MICROCMS_API_KEY": "${MICROCMS_API_KEY}"
+      }
+    }
+  }
+}
