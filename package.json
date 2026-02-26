@@ -20,6 +20,7 @@
     "dev": "tsc --watch & node --watch dist/index.js",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run build",
     "test": "echo \"No tests specified\" && exit 0"
   },
