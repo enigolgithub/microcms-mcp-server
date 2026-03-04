@@ -1,5 +1,6 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { getList } from '../client.js';
+import { truncateListResponse } from '../truncate.js';
 import type { ToolParameters, MicroCMSListOptions } from '../types.js';
 
 export const getListTool: Tool = {
@@ -73,5 +74,6 @@ export async function handleGetList(params: ToolParameters) {
   if (options.filters) queries.filters = options.filters;
   if (options.depth) queries.depth = options.depth;
 
-  return await getList(endpoint, queries);
+  const result = await getList(endpoint, queries);
+  return truncateListResponse(result);
 }

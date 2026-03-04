@@ -22,7 +22,7 @@
     "format": "prettier --write src/**/*.ts",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "node --import tsx --test src/**/*.test.ts"
   },
   "keywords": [
     "mcp",
@@ -58,6 +58,7 @@
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
     "prettier": "^3.0.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.0.0"
   },
   "engines": {

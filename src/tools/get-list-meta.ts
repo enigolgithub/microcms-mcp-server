@@ -1,5 +1,6 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { getListMeta } from '../client.js';
+import { truncateListResponse } from '../truncate.js';
 import type { ToolParameters } from '../types.js';
 
 export const getListMetaTool: Tool = {
@@ -39,6 +40,7 @@ export async function handleGetListMeta(params: ToolParameters) {
     if (limit !== undefined) options.limit = limit;
     if (offset !== undefined) options.offset = offset;
 
-    return await getListMeta(endpoint, options);
+    const result = await getListMeta(endpoint, options);
+    return truncateListResponse(result);
 }
 
