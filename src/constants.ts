@@ -2,6 +2,7 @@ export const FIELD_FORMATS_DESCRIPTION = `
   Create new content in microCMS and publish it immediately. 
 
   ## Important
+  Before starting any content operations, you MUST call microcms_get_api_list to retrieve the list of available endpoints and understand their schemas.
   Ensure that the "content" you submit strictly adheres to the following specifications.
   In particular, take extra care when handling custom fields and iframe fields, as mistakes are common in their structure. 
   Read the instructions thoroughly and construct the data precisely as described.
@@ -9,9 +10,9 @@ export const FIELD_FORMATS_DESCRIPTION = `
   
   ## Field type specifications
   
-  * Image fields require URL string uploaded to microCMS media library (e.g., "https://images.microcms-assets.io/assets/xxx/yyy/sample.png"). 
-  * Multiple image fields use array format. 
-  * Rich editor fields expect HTML strings. 
+  * Image fields (kind: "media") require a URL string uploaded to microCMS media library (e.g., "https://images.microcms-assets.io/assets/xxx/yyy/sample.png"). When setting media fields, always specify the image URL as a plain string value.
+  * Multiple image fields use array format.
+  * Rich editor fields expect HTML strings. IMPORTANT: The "richEditor" field type does NOT support HTML content. You MUST use "richEditorV2" for HTML content.
   * Date fields use ISO 8601 format. 
   * Select fields use arrays. 
   * Content reference fields use contentId strings or arrays for multiple references, and you can get contentIds from microcms_get_list tool. 
