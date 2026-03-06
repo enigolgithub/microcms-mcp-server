@@ -2,6 +2,9 @@ import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { create } from '../client.js';
 import type { BulkToolParameters, BulkCreateResult } from '../types.js';
 import { FIELD_FORMATS_DESCRIPTION } from '../constants.js';
+import { readInputFile } from '../file.js';
+import { assertRecord } from '../content-utils.js';
+import { normalizeForEdit } from '../normalize.js';
 
 const BULK_DESCRIPTION = `
   Create multiple contents in microCMS at once.
@@ -11,99 +14,70 @@ const BULK_DESCRIPTION = `
   ${FIELD_FORMATS_DESCRIPTION}
 `;
 
-export const createContentsBulkPublishedTool: Tool = {
-  name: 'microcms_create_contents_bulk_published',
-  description: BULK_DESCRIPTION,
-  inputSchema: {
-    type: 'object',
-    properties: {
-      endpoint: {
-        type: 'string',
-        description: 'Content type name (e.g., "blogs", "news")',
-      },
-      contents: {
-        type: 'array',
-        description: 'Array of contents to create',
-        items: {
-          type: 'object',
-          properties: {
-            content: {
-              type: 'object',
-              description: 'Content data to create (JSON object)',
-            },
-            contentId: {
-              type: 'string',
-              description: 'Specific content ID to assign (optional)',
-            },
-          },
-          required: ['content'],
+export function getCreateContentsBulkPublishedTool(baseDir: string): Tool {
+  return {
+    name: 'microcms_create_contents_bulk_published',
+    description: BULK_DESCRIPTION,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        endpoint: {
+          type: 'string',
+          description: 'Content type name (e.g., "blogs", "news")',
+        },
+        contentFilePaths: {
+          type: 'array',
+          items: { type: 'string' },
+          description: `Array of absolute paths to JSON files. Each file should contain a single content JSON object created in ${baseDir}.`,
         },
       },
+      required: ['endpoint', 'contentFilePaths'],
     },
-    required: ['endpoint', 'contents'],
-  },
-};
+  };
+}
 
-export const createContentsBulkDraftTool: Tool = {
-  name: 'microcms_create_contents_bulk_draft',
-  description: BULK_DESCRIPTION,
-  inputSchema: {
-    type: 'object',
-    properties: {
-      endpoint: {
-        type: 'string',
-        description: 'Content type name (e.g., "blogs", "news")',
-      },
-      contents: {
-        type: 'array',
-        description: 'Array of contents to create as draft',
-        items: {
-          type: 'object',
-          properties: {
-            content: {
-              type: 'object',
-              description: 'Content data to create (JSON object)',
-            },
-            contentId: {
-              type: 'string',
-              description: 'Specific content ID to assign (optional)',
-            },
-          },
-          required: ['content'],
+export function getCreateContentsBulkDraftTool(baseDir: string): Tool {
+  return {
+    name: 'microcms_create_contents_bulk_draft',
+    description: BULK_DESCRIPTION,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        endpoint: {
+          type: 'string',
+          description: 'Content type name (e.g., "blogs", "news")',
+        },
+        contentFilePaths: {
+          type: 'array',
+          items: { type: 'string' },
+          description: `Array of absolute paths to JSON files. Each file should contain a single content JSON object created in ${baseDir}.`,
         },
       },
+      required: ['endpoint', 'contentFilePaths'],
     },
-    required: ['endpoint', 'contents'],
-  },
-};
+  };
+}
 
 async function handleBulkCreate(
   params: BulkToolParameters,
   isDraft: boolean
 ): Promise<BulkCreateResult> {
-  const { endpoint, contents } = params;
+  const { endpoint, contentFilePaths } = params;
 
-  if (!contents || !Array.isArray(contents) || contents.length === 0) {
-    throw new Error('contents array is required and must not be empty');
+  if (!Array.isArray(contentFilePaths) || contentFilePaths.length === 0) {
+    throw new Error('contentFilePaths must be a non-empty array');
   }
 
   const results: BulkCreateResult['results'] = [];
   let successCount = 0;
   let failureCount = 0;
 
-  for (let i = 0; i < contents.length; i++) {
-    const item = contents[i];
-
+  for (let i = 0; i < contentFilePaths.length; i++) {
     try {
-      const createOptions: { isDraft: boolean; contentId?: string } = {
-        isDraft,
-      };
+      const rawContent = assertRecord(await readInputFile(contentFilePaths[i]));
+      const content = normalizeForEdit(rawContent);
 
-      if (item.contentId) {
-        createOptions.contentId = item.contentId;
-      }
-
-      const result = await create(endpoint, item.content, createOptions);
+      const result = await create(endpoint, content, { isDraft });
 
       results.push({
         index: i,
@@ -123,7 +97,7 @@ async function handleBulkCreate(
   }
 
   return {
-    totalCount: contents.length,
+    totalCount: contentFilePaths.length,
     successCount,
     failureCount,
     results,
@@ -141,4 +115,3 @@ export async function handleCreateContentsBulkDraft(
 ): Promise<BulkCreateResult> {
   return handleBulkCreate(params, true);
 }
-

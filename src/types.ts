@@ -60,6 +60,7 @@ export interface ToolParameters {
   endpoint: string;
   contentId?: string;
   content?: Record<string, any>;
+  contentFilePath?: string;
   draftKey?: string;
   limit?: number;
   offset?: number;
@@ -70,6 +71,7 @@ export interface ToolParameters {
   filters?: string;
   depth?: 1 | 2 | 3;
   isDraft?: boolean;
+  forEdit?: boolean;
   // Media parameters
   imageOnly?: boolean;
   fileName?: string;
@@ -95,12 +97,6 @@ export interface MediaToolParameters {
   url?: string;
 }
 
-// Bulk create types
-export interface BulkCreateItem {
-  content: Record<string, any>;
-  contentId?: string;
-}
-
 export interface BulkCreateResultItem {
   index: number;
   success: boolean;
@@ -117,5 +113,5 @@ export interface BulkCreateResult {
 
 export interface BulkToolParameters {
   endpoint: string;
-  contents: BulkCreateItem[];
+  contentFilePaths: string[];
 }

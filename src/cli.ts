@@ -16,12 +16,14 @@ Usage:
 Options:
   --service-id <service-id>  microCMS service ID (required)
   --api-key <key>           microCMS API key (required)
+  --file-dir <path>         File I/O directory path (optional)
   --help                    Show this help message
   --version                 Show version information
 
 Environment Variables:
   MICROCMS_SERVICE_ID      Service ID (fallback)
   MICROCMS_API_KEY         API key (fallback)
+  MICROCMS_FILE_DIR        File I/O directory (fallback, default: {tmpdir}/microcms-mcp/)
 
 Examples:
   npx microcms-mcp-server --service-id my-blog --api-key your-key
@@ -61,6 +63,9 @@ export async function runCli() {
           type: 'string',
           short: 'k',
         },
+        'file-dir': {
+          type: 'string',
+        },
         'help': {
           type: 'boolean',
           short: 'h',
@@ -80,6 +85,9 @@ export async function runCli() {
     }
     if (values['api-key']) {
       process.env.MICROCMS_API_KEY = values['api-key'];
+    }
+    if (values['file-dir']) {
+      process.env.MICROCMS_FILE_DIR = values['file-dir'];
     }
 
     // 設定の検証

@@ -1,5 +1,6 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { getContentManagement } from '../client.js';
+import { generateOutputPath, writeOutputFile } from '../file.js';
 import type { ToolParameters } from '../types.js';
 
 export const getContentMetaTool: Tool = {
@@ -32,7 +33,14 @@ export async function handleGetContentMeta(params: ToolParameters) {
     throw new Error('contentId is required');
   }
 
-  return await getContentManagement(endpoint, contentId);
+  const result = await getContentManagement(endpoint, contentId);
+
+  const outputPath = generateOutputPath(endpoint, contentId);
+  await writeOutputFile(outputPath, result);
+
+  return {
+    file: outputPath,
+    endpoint,
+    contentId,
+  };
 }
-
-

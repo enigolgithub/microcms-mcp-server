@@ -9,10 +9,10 @@ import { getListTool, handleGetList } from './tools/get-list.js';
 import { getListMetaTool, handleGetListMeta as handleGetListMeta } from './tools/get-list-meta.js';
 import { getContentTool, handleGetContent } from './tools/get-content.js';
 import { getContentMetaTool, handleGetContentMeta } from './tools/get-content-meta.js';
-import { createContentPublishedTool, handleCreateContentPublished } from './tools/create-content-published.js';
-import { createContentDraftTool, handleCreateContentDraft } from './tools/create-content-draft.js';
-import { updateContentPublishedTool, handleUpdateContentPublished } from './tools/update-content-published.js';
-import { updateContentDraftTool, handleUpdateContentDraft } from './tools/update-content-draft.js';
+import { getCreateContentPublishedTool, handleCreateContentPublished } from './tools/create-content-published.js';
+import { getCreateContentDraftTool, handleCreateContentDraft } from './tools/create-content-draft.js';
+import { getUpdateContentPublishedTool, handleUpdateContentPublished } from './tools/update-content-published.js';
+import { getUpdateContentDraftTool, handleUpdateContentDraft } from './tools/update-content-draft.js';
 import { patchContentTool, handlePatchContent } from './tools/patch-content.js';
 import { patchContentStatusTool, handlePatchContentStatus } from './tools/patch-content-status.js';
 import { patchContentCreatedByTool, handlePatchContentCreatedBy } from './tools/patch-content-created-by.js';
@@ -24,11 +24,12 @@ import { getApiInfoTool, handleGetApiInfo } from './tools/get-api-info.js';
 import { getApiListTool, handleGetApiList } from './tools/get-apis-list.js';
 import { getMemberTool, handleGetMember } from './tools/get-member.js';
 import {
-  createContentsBulkPublishedTool,
-  createContentsBulkDraftTool,
+  getCreateContentsBulkPublishedTool,
+  getCreateContentsBulkDraftTool,
   handleCreateContentsBulkPublished,
   handleCreateContentsBulkDraft,
 } from './tools/create-contents-bulk.js';
+import { getBaseDir } from './file.js';
 import type { ToolParameters, MediaToolParameters, BulkToolParameters } from './types.js';
 
 const server = new Server(
@@ -45,18 +46,19 @@ const server = new Server(
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
+  const baseDir = getBaseDir();
   return {
     tools: [
       getListTool,
       getListMetaTool,
       getContentTool,
       getContentMetaTool,
-      createContentPublishedTool,
-      createContentDraftTool,
-      createContentsBulkPublishedTool,
-      createContentsBulkDraftTool,
-      updateContentPublishedTool,
-      updateContentDraftTool,
+      getCreateContentPublishedTool(baseDir),
+      getCreateContentDraftTool(baseDir),
+      getCreateContentsBulkPublishedTool(baseDir),
+      getCreateContentsBulkDraftTool(baseDir),
+      getUpdateContentPublishedTool(baseDir),
+      getUpdateContentDraftTool(baseDir),
       patchContentTool,
       patchContentStatusTool,
       patchContentCreatedByTool,
@@ -171,6 +173,9 @@ export async function startServer() {
     // Validate configuration early to provide better error messages
     const { parseConfig } = await import('./config.js');
     parseConfig();
+
+    const { setupIODirectory } = await import('./file.js');
+    await setupIODirectory();
 
     const transport = new StdioServerTransport();
     await server.connect(transport);
